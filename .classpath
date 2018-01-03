@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+  <classpathentry kind="src" path="src/test/java" output="target/test-classes" including="**/*.java"/>
+  <classpathentry kind="src" path="src/test/resources" output="target/test-classes" excluding="**/*.java"/>
+  <classpathentry kind="src" path="src/main/java" including="**/*.java"/>
+  <classpathentry kind="src" path="src/main/resources" excluding="**/*.java"/>
+  <classpathentry kind="output" path="target/classes"/>
+  <classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+  <classpathentry kind="var" path="M2_REPO/org/web3j/quorum/0.7.0/quorum-0.7.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/web3j/core/3.0.1/core-3.0.1.jar" sourcepath="M2_REPO/org/web3j/core/3.0.1/core-3.0.1-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/squareup/okhttp3/okhttp/3.8.1/okhttp-3.8.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/squareup/okio/okio/1.13.0/okio-1.13.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/io/reactivex/rxjava/1.2.4/rxjava-1.2.4.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/squareup/okhttp3/logging-interceptor/3.8.1/logging-interceptor-3.8.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/github/jnr/jnr-unixsocket/0.15/jnr-unixsocket-0.15.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/github/jnr/jnr-ffi/2.1.2/jnr-ffi-2.1.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/github/jnr/jffi/1.2.14/jffi-1.2.14.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/github/jnr/jffi/1.2.14/jffi-1.2.14-native.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/ow2/asm/asm/5.0.3/asm-5.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/ow2/asm/asm-commons/5.0.3/asm-commons-5.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/ow2/asm/asm-tree/5.0.3/asm-tree-5.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/ow2/asm/asm-analysis/5.0.3/asm-analysis-5.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/ow2/asm/asm-util/5.0.3/asm-util-5.0.3.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/github/jnr/jnr-x86asm/1.0.2/jnr-x86asm-1.0.2.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/github/jnr/jnr-constants/0.9.6/jnr-constants-0.9.6.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/github/jnr/jnr-enxio/0.14/jnr-enxio-0.14.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/github/jnr/jnr-posix/3.0.33/jnr-posix-3.0.33.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/slf4j/slf4j-api/1.7.25/slf4j-api-1.7.25.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/fasterxml/jackson/core/jackson-databind/2.8.5/jackson-databind-2.8.5.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/fasterxml/jackson/core/jackson-annotations/2.8.0/jackson-annotations-2.8.0.jar"/>
+  <classpathentry kind="var" path="M2_REPO/com/fasterxml/jackson/core/jackson-core/2.8.5/jackson-core-2.8.5.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/web3j/abi/3.0.1/abi-3.0.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/web3j/utils/3.0.1/utils-3.0.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/bouncycastle/bcprov-jdk15on/1.54/bcprov-jdk15on-1.54.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/web3j/rlp/3.0.1/rlp-3.0.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/web3j/tuples/3.0.1/tuples-3.0.1.jar"/>
+</classpath>
