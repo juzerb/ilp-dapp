@@ -184,8 +184,8 @@ contract TransactionAgent is owned {
 		transactions[transactionNum] = Transaction ( { transactionType : TxnType.TRANSFER ,
 									origStashName : origStash._bankName,
 									destStashName : destStash._bankName,
-									txnAmt : _transactionAmt,
-									txnRemarks : _remarks,
+									transactionAmt : _transactionAmt,
+									transactionRemarks : _remarks,
 									transactionStatus : TxnStatusType.ACCEPTED,
 									exists : true }  ) ;
 									
@@ -194,6 +194,57 @@ contract TransactionAgent is owned {
 	}
 	
 	
+	function rejectTransfer ( uint _transactionNum, string _remarks) returns(uint) {
+	
+		Transaction tran = transactions[_transactionNum];
+		
+		Stash origstash = bankAccountStashRegistry[tran.origStashName];
+		
+		Stash destStash = bankAccountStashRegistry[tran.destStashName];	
+	
+		origStash.credit(origStash._bankName, tran.txnAmt, ++transactionNum);
+		
+		destStash.debit(destStash._bankName, tran.txnAmt, transactionNum);
+		
+		transactions[transactionNum] = Transaction ( { transactionType : TxnType.TRANSFER ,
+									origStashName : tran.destStashName,
+									destStashName : tran.origStashName,
+									transactionAmt : tran.txnAmt,
+									transactionRemarks : _remarks,
+									transactionStatus : TxnStatusType.REJECTED,
+									exists : true }  ) ;
+									
+		return transactionNum;
+	
+	}
+	
+	
+	function initIlpTransfer( string _origBankName, uint _txnAmt , string _remarks,
+	string _origAccountAddress , string _destAccountAddress , string sourceCurrency ,
+	string destinationCurrency , String paymentId , string key1 , string key2) returns (uint) {
+	
+	
+	Stash stash = getBankStash( _origBankName);
+	
+	if(stash.bankAddr() == address(0)) {throw;}
+	
+	Stash suspenseStash = getBanksSuspenseStash(_origBankName);
+	
+	if(stash.getBalance() < _txnAmount) {throw;}
+	
+	//call createTransfer
+	transactionNum = createTransfer(stash, suspenseStash, _txnAmt, _remarks,
+		_origAccountAddress , _destAccountAddress ,sourceCurrency ,	 destinationCurrency , 
+		paymentId ,key1,key2);
+		
+		
+	pendingTransactions[paymentId]=transactionNum;
+	//raise an evnt and notify Ilp
+	InitIlpTransfer(paymentId);
+	
+	return transactionNum;
+	
+	}
 	
 	
 	
