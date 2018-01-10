@@ -41,8 +41,8 @@ contract TransactionAgent is owned {
 	//base transaction strucutre
 	struct Transaction {
 		TxnType trnasactionType;
-		string originatingStashName;
-		string destinationStashName;
+		string origStashName;
+		string destStashName;
 		string originalCurrency;
 		string destinationCurrency;
 		uint transactionAmt;
@@ -54,12 +54,12 @@ contract TransactionAgent is owned {
 	
 	
 	//Transactions structure or hashmap
-	mapping(uint => Transaction) public transactions;
-	mapping(string ==> uint)  publick pendingTransactions;
+	mapping (uint => Transaction) public transactions;
+	mapping(string => uint)  public pendingTransactions;
 	
 	
-	uint trnasactionNum;
-	Stash connectoStash;
+	uint transactionNum;
+	Stash connectorStash;
 	
 	//Stash registry mapping
 	mapping(string => Stash ) bankAccountStashRegistry;
@@ -72,18 +72,18 @@ contract TransactionAgent is owned {
 	
 	//modifier to check suspense stash
 	
-	modifier suspenseStashExists( string stashName) {  if(suspenseAccountStashRegistry[stashName[ == address(0)) throw; _; }
+	modifier suspenseStashExists( string stashName) {  if(suspenseAccountStashRegistry[stashName] == address(0)) throw; _; }
 	
 	//modififier to check if trnsaction exists
-	modifier  trnsactionExists ( unint _trnsactionNum)  ( if (!transactions[_transactionNum].exists) throw; _; }
+	modifier  transactionExists ( uint _trnsactionNum)  { if (!transactions[_trnsactionNum].exists)  throw;  _; }
 	
 	//modififier to check if pending trnsaction exists
-	modifier  pendingtrnsactionExists ( string _paymentId)  ( if (!transactions[_paymentId].exists) throw; _; }
+	modifier  pendingtransactionExists ( uint  _paymentId)  { if (!transactions[_paymentId].exists) throw; _; }
 	
 	
 	//Event for stash creation
 	
-	event StashCreatd( string _name ,address _bank);
+	event StashCreated( string _name ,address _bank);
 	
 	//Events for stash pledge request , approval , rejection and cancellation
 	
@@ -111,20 +111,21 @@ contract TransactionAgent is owned {
 	//check if stash already exists. if yes return
 		if (bankAccountStashRegistry[_bankName] != address(0)) { throw ;}
 	
+	
 	//create a wallet
-	Stash stash = new Stash (_bankName, _bankAddress, 9, StashType.SUSPENSE);
+	Stash stash=new Stash(_bankName, _bankAddress, 9, 'SUSPENSE');
 	//suspenseAccountStashRegistry[_bankName] = stash;
-	
-	
+
 	StashCreated(_bankName, _bankAddress);
+	
 	}
 	
 	
-	}
+	
 	
 	// TODO: create a createConnectorStash function as well
 	
-	function getConnectorStash returns (Stash) {
+	function getConnectorStash () returns (Stash) {
 	
 	return connectorStash;
 	}
@@ -172,21 +173,21 @@ contract TransactionAgent is owned {
 	
 	
 	
-	function createTransfer( Stash origStash, Stash destStash, uint _trnsactionAmt , string _remarks )
+	function createTransfer( Stash origStash, Stash destStash, uint _transactionAmt , string _remarks )
 	returns (uint)
 	{
 	
 	
-		origStash.debit(origStash._bankName, _trnsactionAmt, ++transactionNum);
+		origStash.debit(origStash.bankName, _transactionAmt, ++transactionNum);
 		
-		destStash.credit(destStash._bankName, _transactionAnt, transactionNum);
+		destStash.credit(destStash.bankName, _transactionAmt, transactionNum);
 		
 		transactions[transactionNum] = Transaction ( { transactionType : TxnType.TRANSFER ,
-									origStashName : origStash._bankName,
-									destStashName : destStash._bankName,
+									origStashName : origStash.bankName,
+									destStashName : destStash.bankName,
 									transactionAmt : _transactionAmt,
 									transactionRemarks : _remarks,
-									transactionStatus : TxnStatusType.ACCEPTED,
+									transactionStatus : TxnStatusType.PROPOSED,
 									exists : true }  ) ;
 									
 		return transactionNum;
@@ -198,15 +199,15 @@ contract TransactionAgent is owned {
 	
 		Transaction tran = transactions[_transactionNum];
 		
-		Stash origstash = bankAccountStashRegistry[tran.origStashName];
+		Stash origStash = bankAccountStashRegistry[tran.origStashName];
 		
 		Stash destStash = bankAccountStashRegistry[tran.destStashName];	
 	
-		origStash.credit(origStash._bankName, tran.txnAmt, ++transactionNum);
+		origStash.credit(origStash.bankName, tran.transactionAmt, ++transactionNum);
 		
-		destStash.debit(destStash._bankName, tran.txnAmt, transactionNum);
+		destStash.debit(destStash._bankName, tran.transactionAmt, transactionNum);
 		
-		transactions[transactionNum] = Transaction ( { transactionType : TxnType.TRANSFER ,
+		transactions[transactionNum] = new Transaction ( { transactionType : TxnType.TRANSFER ,
 									origStashName : tran.destStashName,
 									destStashName : tran.origStashName,
 									transactionAmt : tran.txnAmt,
@@ -221,7 +222,7 @@ contract TransactionAgent is owned {
 	
 	function initIlpTransfer( string _origBankName, uint _txnAmt , string _remarks,
 	string _origAccountAddress , string _destAccountAddress , string sourceCurrency ,
-	string destinationCurrency , String paymentId , string key1 , string key2) returns (uint) {
+	string destinationCurrency , string paymentId , string key1 , string key2) returns (uint) {
 	
 	
 	Stash stash = getBankStash( _origBankName);
@@ -230,7 +231,7 @@ contract TransactionAgent is owned {
 	
 	Stash suspenseStash = getBanksSuspenseStash(_origBankName);
 	
-	if(stash.getBalance() < _txnAmount) {throw;}
+	if(stash.getBalance() < _txnAmt) { throw;}
 	
 	//call createTransfer
 	transactionNum = createTransfer(stash, suspenseStash, _txnAmt, _remarks,
@@ -245,34 +246,6 @@ contract TransactionAgent is owned {
 	return transactionNum;
 	
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	}
 	

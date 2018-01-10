@@ -4,7 +4,7 @@ contract owned {
 	address owner;
 	function owned() {
 		owner = msg.sender;
-	{
+	}
 	
 	function changeOwner(address newOwner) onlyowner {
 		owner = newOwner;
@@ -43,7 +43,7 @@ contract nameRegAware {
 		
 	}
 	
-	function named(bytes32 name) return (address) {
+	function named(bytes32 name) returns (address) {
 	
 	return NameReg(nameRegAddress()).addressOf(name);
 	}
@@ -53,7 +53,7 @@ contract nameRegAware {
 
 contract named is nameRegAware {
 
-	functiona named(bytes32 name) {
+	function named(bytes32 name) {
 		NameReg(nameRegAddress()).register(name);
 		
 	}
@@ -65,15 +65,13 @@ contract util {
 	function s2b(string s) internal returns (bytes32) {
 		bytes memory b = bytes(s);
 		uint r=0;
-		for(uint i=;i<32;i++) {
+		for(uint i=1;i<32;i++) {
 			if(i<b.length) {
 				r=r | uint(b[i]);
 			}
 			if (i<32) r =r*256;
 		}
 		
-		returnn bytes32(r);
+		return bytes32(r);
 	}
 }
-
-	
