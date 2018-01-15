@@ -3,6 +3,7 @@ pragma solidity ^0.4.2;
 import "./std.sol";
 import "./Stash.sol";
 
+
 // import "permissionControlled.sol";
 
 contract TransactionAgent is owned {
@@ -40,7 +41,7 @@ contract TransactionAgent is owned {
 	
 	//base transaction strucutre
 	struct Transaction {
-		TxnType trnasactionType;
+		TxnType transactionType;
 		string origStashName;
 		string destStashName;
 		string originalCurrency;
@@ -60,6 +61,9 @@ contract TransactionAgent is owned {
 	
 	uint transactionNum;
 	Stash connectorStash;
+	string stashSuspense;
+	string stashPositional;
+	string stashConnector;
 	
 	//Stash registry mapping
 	mapping(string => Stash ) bankAccountStashRegistry;
@@ -68,6 +72,7 @@ contract TransactionAgent is owned {
 	
 	//Modifier to check valid stash
 	modifier stashExists (string stashName) { if (bankAccountStashRegistry[stashName] == address(0)) throw; _; }
+	
 	
 	
 	//modifier to check suspense stash
@@ -94,6 +99,9 @@ contract TransactionAgent is owned {
 	
 	function TransactionAgent() {
 		transactionNum = 0;
+		stashSuspense="SUSPENSE";
+		stashConnector="CONNECTOR";
+		stashPositional="POSITIONAL";
 		
 		//create connector stash
 		
@@ -171,20 +179,30 @@ contract TransactionAgent is owned {
 	
 	}
 	
+
 	
 	
-	function createTransfer( Stash origStash, Stash destStash, uint _transactionAmt , string _remarks )
+	function createTransfer( string _origBankName , string _origStashType , string _destBankName, string _destStashType, uint _transactionAmt , string _remarks,
+	string sourceCurrency , string	 destinationCurrency , 
+	string	paymentId )
 	returns (uint)
 	{
-	
-	
-		origStash.debit(origStash.bankName, _transactionAmt, ++transactionNum);
+	    
+	    Stash origStash = getStash(_origBankName,_origStashType);
+	    
+	    Stash destStash = getStash(_destBankName,_destStashType);
+	    
+	     
+	        
+		origStash.debit(_origBankName, _transactionAmt, ++transactionNum);
 		
-		destStash.credit(destStash.bankName, _transactionAmt, transactionNum);
+		destStash.credit(_destBankName, _transactionAmt, transactionNum);
 		
 		transactions[transactionNum] = Transaction ( { transactionType : TxnType.TRANSFER ,
-									origStashName : origStash.bankName,
-									destStashName : destStash.bankName,
+									origStashName : _origBankName,
+									destStashName : _destBankName,
+									originalCurrency :sourceCurrency,
+									destinationCurrency:destinationCurrency,
 									transactionAmt : _transactionAmt,
 									transactionRemarks : _remarks,
 									transactionStatus : TxnStatusType.PROPOSED,
@@ -192,28 +210,38 @@ contract TransactionAgent is owned {
 									
 		return transactionNum;
 	
+	
+		
 	}
 	
 	
-	function rejectTransfer ( uint _transactionNum, string _remarks) returns(uint) {
+	function getStash(string _bankName , string stashType) returns(Stash) {
+	    //keccak256(portcheck) == keccak256("signed")
+	    if (keccak256(stashType) == keccak256(stashSuspense)) { return getBankStash(_bankName); }
+	    else { return getBanksSuspenseStash(_bankName);
+	}
+	}
 	
-		Transaction tran = transactions[_transactionNum];
-		
-		Stash origStash = bankAccountStashRegistry[tran.origStashName];
-		
-		Stash destStash = bankAccountStashRegistry[tran.destStashName];	
 	
-		origStash.credit(origStash.bankName, tran.transactionAmt, ++transactionNum);
+	function rejectTransfer( uint _transactionNum, string _remarks) returns(uint) {
+	
+	//	Transaction tran = transactions[_transactionNum];
 		
-		destStash.debit(destStash._bankName, tran.transactionAmt, transactionNum);
+	//	Stash origStash = bankAccountStashRegistry[tran.origStashName];
 		
-		transactions[transactionNum] = new Transaction ( { transactionType : TxnType.TRANSFER ,
-									origStashName : tran.destStashName,
-									destStashName : tran.origStashName,
-									transactionAmt : tran.txnAmt,
-									transactionRemarks : _remarks,
-									transactionStatus : TxnStatusType.REJECTED,
-									exists : true }  ) ;
+	//	Stash destStash = bankAccountStashRegistry[tran.destStashName];	
+	
+	//	origStash.credit(origStash.bankName, tran.transactionAmt, ++transactionNum);
+		
+	//	destStash.debit(destStash._bankName, tran.transactionAmt, transactionNum);
+		
+	//	transactions[transactionNum] = new Transaction ( { transactionType : TxnType.TRANSFER ,
+	//								origStashName : tran.destStashName,
+	//								destStashName : tran.origStashName,
+	//								transactionAmt : tran.txnAmt,
+    //									transactionRemarks : _remarks,
+	//								transactionStatus : TxnStatusType.REJECTED,
+	//								exists : true }  ) ;
 									
 		return transactionNum;
 	
@@ -222,7 +250,7 @@ contract TransactionAgent is owned {
 	
 	function initIlpTransfer( string _origBankName, uint _txnAmt , string _remarks,
 	string _origAccountAddress , string _destAccountAddress , string sourceCurrency ,
-	string destinationCurrency , string paymentId , string key1 , string key2) returns (uint) {
+	string destinationCurrency , string paymentId ) returns (uint) {
 	
 	
 	Stash stash = getBankStash( _origBankName);
@@ -233,15 +261,16 @@ contract TransactionAgent is owned {
 	
 	if(stash.getBalance() < _txnAmt) { throw;}
 	
+	
+	
 	//call createTransfer
-	transactionNum = createTransfer(stash, suspenseStash, _txnAmt, _remarks,
-		_origAccountAddress , _destAccountAddress ,sourceCurrency ,	 destinationCurrency , 
-		paymentId ,key1,key2);
+	transactionNum = createTransfer(_origBankName,stashPositional , _origBankName , stashSuspense,   _txnAmt, _remarks,
+		 sourceCurrency ,	 destinationCurrency , paymentId );
 		
 		
 	pendingTransactions[paymentId]=transactionNum;
 	//raise an evnt and notify Ilp
-	InitIlpTransfer(paymentId);
+	InitIlpTransfer(transactionNum);
 	
 	return transactionNum;
 	
