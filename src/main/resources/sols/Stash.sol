@@ -3,7 +3,7 @@ pragma solidity ^0.4.2;
 import "./std.sol";
 
 
-contract Stash is mortal, named("Stash") {
+contract Stash   {
 
 	string public bankName;
 	address public bankAddr;
@@ -41,6 +41,7 @@ contract Stash is mortal, named("Stash") {
 			bankName = _bankName;
 			bankAddr = _bankAddr;
 			stashBalance = 0;
+			stashType = _stashType;
 		}
 		
 		
@@ -60,7 +61,7 @@ contract Stash is mortal, named("Stash") {
 		}
 		
 		
-	function getBalance() onlyowner returns (uint _stashBalance) {
+	function getBalance()  returns (uint _stashBalance) {
 		
 		return stashBalance;
 		

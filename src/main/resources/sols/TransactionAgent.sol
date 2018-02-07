@@ -123,14 +123,23 @@ contract TransactionAgent is owned {
 	
 	
 	//create a wallet
-	Stash stash=new Stash(_bankName, _bankAddress, 9, 'SUSPENSE');
+	Stash stash=new Stash(_bankName, _bankAddress, 10000, 'POSITIONAL');
+	
 	//suspenseAccountStashRegistry[_bankName] = stash;
+	bankAccountStashRegistry[_bankName] = stash;
+	
+	Stash susStash = new Stash(_bankName, _bankAddress, 10000, 'SUSPENSE');
+	suspenseAccountStashRegistry[_bankName]=susStash;
+
 
 	StashCreated(_bankName, _bankAddress);
 	
 	}
 	
 	
+	function createConnectorStash(string _connectorName , address _connectorAddress) {
+	    connectorStash = new Stash ( _connectorName, _connectorAddress,10000, 'CONNECTOR');
+	}
 	
 	
 	// TODO: create a createConnectorStash function as well
