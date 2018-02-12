@@ -1,4 +1,4 @@
-cd d:\E2\ilpDapp\src\main\resources\sols\generated
+cd d:\E2\ilpDapp\src\main\resources\sols\generatedv2
 web3j solidity generate Stash_sol_Stash.bin Stash_sol_Stash.abi -o d:\E2\ilpDapp\src\main\java -p com.jpmc.ilp.contracts
 web3j solidity generate std_sol_util.bin std_sol_util.abi -o d:\E2\ilpDapp\src\main\java -p com.jpmc.ilp.contracts
 web3j solidity generate std_sol_named.bin std_sol_named.abi -o d:\E2\ilpDapp\src\main\java -p com.jpmc.ilp.contracts

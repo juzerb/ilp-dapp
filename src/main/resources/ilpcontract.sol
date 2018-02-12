@@ -1,14 +1,76 @@
 pragma solidity ^0.4.2;
 
-import "./std.sol";
-import "./Stash.sol";
 
 
-// import "permissionControlled.sol";
+
+contract Stash   {
+
+	string public bankName;
+	
+	uint stashBalance;
+	string public stashType;
+	
+	
+	
+	enum StashType {
+	POSITIONAL,
+	SUSPENSE,
+	CONNECTOR
+	}
+	
+	
+	//Events
+	event BalanceChanged(uint amount, uint txID);
+	
+	//Modifier to check if the caller is owner ( transaction agent)
+	// modifier isOwner(address addr) { if (addr!= owner) throw; _; }
+	
+	
+	
+	function Stash(string _bankName,  uint _stashBalance , string _stashType) {
+		bankName = _bankName;	
+		stashBalance = _stashBalance;
+		stashType = _stashType;
+		
+		}
+		
+		
+		
+	function setBank( string _bankName, string _stashType) {
+			bankName = _bankName;		
+			stashBalance = 100000;
+			stashType = _stashType;
+		}
+		
+		
+	function credit ( string _bankName, uint _crAmt , uint txnId) {
+		stashBalance += _crAmt;
+		BalanceChanged(_crAmt, txnId);
+		}
+		
+		
+	function debit(string _bankName, uint _dAmt , uint txnId) {
+		if(_dAmt > stashBalance) {throw;}
+		
+		stashBalance -= _dAmt;
+		
+		BalanceChanged(_dAmt, txnId);
+		
+		}
+		
+		
+	function getBalance()  returns (uint _stashBalance) {
+		
+		return stashBalance;
+		
+		}
+		
+	}
+
 
 contract TransactionAgent {
 
-// 
+
 
 
 	enum TxnStatusType {
@@ -89,7 +151,7 @@ contract TransactionAgent {
 	
 	//Event for stash creation
 	
-	event StashCreated( string _name ,address _bank);
+	event StashCreated( string _name);
 	
 	//Events for stash pledge request , approval , rejection and cancellation
 	
@@ -117,28 +179,25 @@ contract TransactionAgent {
 	/*
 	createBankStash
 	*/
-	function createBankStash ( string _bankName, address _bankAddress) {
-	//check if stash already exists. if yes return
-		if (bankAccountStashRegistry[_bankName] != address(0)) { throw ;}
-	
-	
+	function createBankStash ( string _bankName) {
+
 	//create a wallet
-	Stash stash=new Stash(_bankName, _bankAddress, 10000, 'POSITIONAL');
+	Stash stash=new Stash(_bankName, 10000, 'POSITIONAL');
 	
 	//suspenseAccountStashRegistry[_bankName] = stash;
 	bankAccountStashRegistry[_bankName] = stash;
 	
-	Stash susStash = new Stash(_bankName, _bankAddress, 10000, 'SUSPENSE');
+	Stash susStash = new Stash(_bankName, 10000, 'SUSPENSE');
 	suspenseAccountStashRegistry[_bankName]=susStash;
 
 
-	StashCreated(_bankName, _bankAddress);
+	StashCreated(_bankName);
 	
 	}
 	
 	
-	function createConnectorStash(string _connectorName , address _connectorAddress) {
-	    connectorStash = new Stash ( _connectorName, _connectorAddress,10000, 'CONNECTOR');
+	function createConnectorStash(string _connectorName ) {
+	    connectorStash = new Stash ( _connectorName, 100000, 'CONNECTOR');
 	}
 	
 	
@@ -154,13 +213,7 @@ contract TransactionAgent {
 	function getBankStash(string _bankName) returns (Stash) {
 	
 		Stash stash = bankAccountStashRegistry[_bankName];
-		if((stash.bankAddr() != address(0) )
-			&& ( owner == msg.sender || stash.bankAddr() == msg.sender )) {
-				return stash ;
-		}
-		else {
-			throw ;
-		}
+		return stash;
 		
 	}
 	
@@ -168,13 +221,7 @@ contract TransactionAgent {
 	function getBanksSuspenseStash(string _bankName) returns (Stash) {
 	
 		Stash stash = suspenseAccountStashRegistry[_bankName];
-		if((stash.bankAddr() != address(0) )
-			&& ( owner == msg.sender || stash.bankAddr() == msg.sender )) {
-				return stash ;
-		}
-		else {
-			throw ;
-		}
+		return stash;
 		
 	}
 	
@@ -183,7 +230,7 @@ contract TransactionAgent {
 	
 		Stash stash = bankAccountStashRegistry[_bankName];
 	
-		if(stash.bankAddr() != address(0) ) { return true; }
+		if(stash.getBalance() >=0 ) { return true; }
 		else { return false; }
 	
 	
@@ -251,24 +298,7 @@ contract TransactionAgent {
 	
 	function rejectTransfer( uint _transactionNum, string _remarks) returns(uint) {
 	
-	//	Transaction tran = transactions[_transactionNum];
-		
-	//	Stash origStash = bankAccountStashRegistry[tran.origStashName];
-		
-	//	Stash destStash = bankAccountStashRegistry[tran.destStashName];	
-	
-	//	origStash.credit(origStash.bankName, tran.transactionAmt, ++transactionNum);
-		
-	//	destStash.debit(destStash._bankName, tran.transactionAmt, transactionNum);
-		
-	//	transactions[transactionNum] = new Transaction ( { transactionType : TxnType.TRANSFER ,
-	//								origStashName : tran.destStashName,
-	//								destStashName : tran.origStashName,
-	//								transactionAmt : tran.txnAmt,
-    //									transactionRemarks : _remarks,
-	//								transactionStatus : TxnStatusType.REJECTED,
-	//								exists : true }  ) ;
-									
+
 		return transactionNum;
 	
 	}
@@ -280,8 +310,6 @@ contract TransactionAgent {
 	
 	
 	Stash stash = getBankStash( _origBankName);
-	
-	if(stash.bankAddr() == address(0)) {throw;}
 	
 	Stash suspenseStash = getBanksSuspenseStash(_origBankName);
 	
@@ -312,7 +340,7 @@ contract TransactionAgent {
 	returns (uint) {
 	    
 	    Stash connectorStash = getConnectorStash();
-	    if(connectorStash.bankAddr() == address(0)) {throw;}
+	    if(connectorStash.getBalance()<=0) {throw;}
 	    
 	    
 	    
