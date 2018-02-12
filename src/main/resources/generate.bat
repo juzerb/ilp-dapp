@@ -8,3 +8,5 @@ web3j solidity generate std_sol_mortal.bin std_sol_mortal.abi -o d:\E2\ilpDapp\s
 web3j solidity generate std_sol_NameReg.bin std_sol_NameReg.abi -o d:\E2\ilpDapp\src\main\java -p com.jpmc.ilp.contracts
 web3j solidity generate TransactionAgent_sol_TransactionAgent.bin TransactionAgent_sol_TransactionAgent.abi -o d:\E2\ilpDapp\src\main\java -p com.jpmc.ilp.contracts
 
+web3j solidity generate ilpcontract_sol_Stash.bin ilpcontract_sol_Stash.abi -o d:\E2\ilpDapp\src\main\java -p com.jpmc.ilp.simple.contracts
+web3j solidity generate ilpcontract_sol_TransactionAgent.bin ilpcontract_sol_TransactionAgent.abi -o d:\E2\ilpDapp\src\main\java -p com.jpmc.ilp.contracts
