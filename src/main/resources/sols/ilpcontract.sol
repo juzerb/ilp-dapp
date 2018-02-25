@@ -333,6 +333,7 @@ contract TransactionAgent {
 	
 	
 	/**
+	 * Transfer money from connector to suspense account of bank
 	 *  function processIlpPaymentTransferRequest
 	 *
 	 */
@@ -357,6 +358,35 @@ contract TransactionAgent {
 	    
 	    
 	}
+	
+	
+		function processIlpPaymentRequest( string payids,string _destAccountAddress,uint _txnAmt , string _remarks, string sourCurr, string destCurr) 
+	returns (uint) {
+	    
+	    Stash connectorStash = getConnectorStash();
+	    
+	    Stash stash = getBankStash( _destAccountAddress);
+	    
+	    
+	    connectorStash.debit(stashConnector, _txnAmt, ++transactionNum);
+		
+		stash.credit(_destAccountAddress, _txnAmt, transactionNum);
+
+	    
+	   transactions[transactionNum] = Transaction ( { transactionType : TxnType.TRANSFER ,
+									origStashName : stashConnector,
+									destStashName : _destAccountAddress,
+									originalCurrency :sourCurr,
+									destinationCurrency:destCurr,
+									transactionAmt : _txnAmt,
+									transactionRemarks : _remarks,
+									transactionStatus : TxnStatusType.EXECUTED,
+									exists : true }  ) ;
+	    
+	    
+	    
+	}
+	
 	
 	
 	
@@ -476,4 +506,3 @@ contract TransactionAgent {
 	
 	
 	}
-	
